@@ -1,0 +1,20 @@
+---
+# Install EPEL and upgrade all existing packages, or installing user specified packages may fail
+- name: Upgrade packages to latest
+  package: name=* state=latest
+  become: yes
+
+- name: Install EPEL repo
+  package: name=epel-release state=latest
+  become: yes
+
+- name: Install default packages
+  package: name="{{ item }}" state=present update_cache=yes
+  with_items: "{{ common_default_packages }}"
+  register: default_packages
+  become: yes
+
+- name: Update mlocate db
+  command: updatedb
+  when: "'mlocate' in common_default_packages and default_packages.changed"
+  become: yes

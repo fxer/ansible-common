@@ -1,0 +1,37 @@
+---
+- name: Add ssh users
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups }}"
+    state: present
+  with_items: "{{ common_users }}"
+  become: yes
+
+- name: Add ssh keys
+  authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ '\n'.join(item.sshkeys) | string }}"
+    state: present
+    exclusive: yes
+  with_items: "{{ common_users }}"
+  become: yes
+
+- name: Enable passwordless sudo for wheel group
+  lineinfile:
+    dest: /etc/sudoers.d/wheel
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    state: present
+    create: yes
+    validate: 'visudo -cf %s'
+  when: common_passwordless_sudo == True
+  become: yes
+
+- name: Disable passwordless sudo for wheel group
+  lineinfile:
+    dest: /etc/sudoers.d/wheel
+    line: '%wheel ALL=(ALL) ALL'
+    state: absent
+    create: yes
+    validate: 'visudo -cf %s'
+  when: common_passwordless_sudo == False
+  become: yes

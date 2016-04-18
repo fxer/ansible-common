@@ -1,0 +1,58 @@
+---
+# After these tasks complete sshd may be running on a different port, denying root login,
+# or only accepting pubkeys. If you can't run any further Ansible commands perhaps
+# your hosts file or cli command hasn't accounted for the above issues
+
+- name: Harden sshd configuration
+  become: yes
+  lineinfile:
+    dest: '/etc/ssh/sshd_config'
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    backrefs: yes
+  with_items:
+    - regexp: "^#?PasswordAuthentication"
+      line: "PasswordAuthentication {{ common_ssh_password_authentication }}"
+    - regexp: "^#?PermitRootLogin"
+      line: "PermitRootLogin {{ common_ssh_permit_root_login }}"
+  notify:
+    - reload sshd
+
+# A custom SSH port requires multiple changes, including configuring SELinux
+# and firewalld to accept the new port
+- name: Configure ssh port
+  become: yes
+  lineinfile:
+    dest: '/etc/ssh/sshd_config'
+    regexp: "^#?Port"
+    line: "Port {{ common_ssh_port }}"
+  register: ssh_port_output
+  notify:
+    - reload sshd
+
+# Idempotent SELinux ssh port modifications
+# Adapted from: http://jensd.be/587/linux/tips-tricks-for-ansible
+- name: SELinux validation of ssh port
+  shell: semanage port -l | egrep "^ssh_port_t" | egrep "\b{{ common_ssh_port }}\b"
+  register: selinux_ssh_ports
+  changed_when: selinux_ssh_ports.stdout.find("{{ common_ssh_port }}") == -1
+  failed_when: False
+  become: yes
+  when: common_selinux_enforcement != 'disabled' and ssh_port_output.changed
+
+- name: Configure SELinux for custom ssh port
+  command: semanage port -a -t ssh_port_t -p tcp {{ common_ssh_port }}
+  when: ssh_port_output.changed
+  become: yes
+
+- name: Configure firewall for custom ssh port
+  firewalld: port={{ common_ssh_port }}/tcp permanent=true state=enabled immediate=true
+  when: ssh_port_output.changed
+  become: yes
+
+# Manage firewalld ssh config via 'port' instead of default 'service'
+- name: Remove default firewall ssh service
+  firewalld: service=ssh permanent=true state=disabled immediate=true
+  when: ssh_port_output.changed
+  become: yes

@@ -1,0 +1,32 @@
+---
+# Very first thing is handle the selinux config, because it must be running
+# to manage selinux settings (if enabled). And enabling it requires an immediate reboot!
+- include: selinux.yml
+  tags: ['common', 'common-selinux']
+
+# Add swap early so later plays have sufficent memory to execute
+- include: swapspace.yml
+  when: common_swapfile_size > 0
+  tags: ['common', 'common-swap']
+
+- include: firewall.yml
+  tags: ['common', 'common-firewall']
+
+- include: users.yml
+  tags: ['common', 'common-users']
+
+- include: sshd.yml
+  tags: ['common', 'common-sshd']
+
+- include: default_packages.yml
+  tags: ['common', 'common-packages']
+
+- include: autoupdate.yml
+  when: common_autoupdate_enabled
+  tags: ['common', 'common-autoupdate']
+
+- include: shell_customization.yml
+  tags: ['common', 'common-shell']
+
+- include: timezone.yml
+  tags: ['common', 'common-timezone']

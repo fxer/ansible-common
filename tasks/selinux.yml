@@ -1,0 +1,44 @@
+---
+# Make sure several important selinux packages are installed
+- name: Install SELinux
+  package: name="{{ item }}" state=present
+  with_items:
+    - selinux-policy
+    - selinux-policy-targeted
+    - audit
+  become: yes
+  notify:
+    - restart auditd
+
+- name: Configure SELinux
+  selinux: policy={{ common_selinux_type }} state={{ common_selinux_enforcement }}
+  register: selinux_result
+  become: yes
+
+# Rebooting to be handled via register, not notify, since it needs to happen immediately
+- name: Reboot to modify SELinux enforcement
+  shell: sleep 2 && shutdown -r now "Ansible requested reboot to modify SELinux"
+  async: 1
+  poll: 0
+  become: yes
+  ignore_errors: yes
+  when: selinux_result.changed
+
+# If we defined a custom SSH port it shouldn't have been changed yet. Hopefully.
+- name: Waiting for server to reboot to modify SELinux enforcement
+  local_action:
+    module: wait_for
+    host: "{{ ansible_host | default(inventory_hostname) }}"
+    port: 22
+    state: started
+    connect_timeout: 5
+    delay: 10
+    timeout: 300
+  become: no
+  when: selinux_result.changed
+
+# If SELinux was enabled/disabled then ansible's previously gathered facts about this system
+# are out of date and could cause later plays to fail. Force facts to be updated
+- name: Force ansible to regather facts for SELinux
+  setup: filter='ansible_selinux'
+  when: selinux_result.changed
