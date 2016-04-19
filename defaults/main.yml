@@ -21,6 +21,7 @@ common_selinux_enforcement: 'enforcing'  # enforcing/permissive/disabled
 common_selinux_type: 'targeted'          # targeted/minimum/mls
 
 common_autoupdate_enabled: True
+common_firewall_enabled: True
 
 # A small VPS can use some swap to avoid processes being killed too easily
 common_swapfile_size: 1024 # Swapfile size in MB, 0 to disable

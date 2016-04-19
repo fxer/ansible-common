@@ -2,3 +2,4 @@
 
 - name: Enable firewall
   service: name=firewalld state=started enabled=yes
+  become: yes
