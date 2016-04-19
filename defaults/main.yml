@@ -35,8 +35,8 @@ common_default_packages:
   - mlocate
   - unzip
   - bash-completion
-  - yum-utils         # for: needs-restarting, repoquery
-  - bind-utils        # for: dig, nslookup
+  - yum-utils         # for; needs-restarting, repoquery
+  - bind-utils        # for; dig, nslookup
 
 common_shell_customizations:
   - path: /etc/profile.d/colorls.sh

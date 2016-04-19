@@ -8,4 +8,3 @@
 - name: Set timezone
   command: timedatectl set-timezone {{ common_timezone }}
   when: current_timezone.stdout.find("{{ common_timezone }}") == -1
-  become: yes

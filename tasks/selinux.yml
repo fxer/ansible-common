@@ -6,21 +6,18 @@
     - selinux-policy
     - selinux-policy-targeted
     - audit
-  become: yes
   notify:
     - restart auditd
 
 - name: Configure SELinux
   selinux: policy={{ common_selinux_type }} state={{ common_selinux_enforcement }}
   register: selinux_result
-  become: yes
 
 # Rebooting to be handled via register, not notify, since it needs to happen immediately
 - name: Reboot to modify SELinux enforcement
   shell: sleep 2 && shutdown -r now "Ansible requested reboot to modify SELinux"
   async: 1
   poll: 0
-  become: yes
   ignore_errors: yes
   when: selinux_result.changed
 
@@ -34,7 +31,6 @@
     connect_timeout: 5
     delay: 10
     timeout: 300
-  become: no
   when: selinux_result.changed
 
 # If SELinux was enabled/disabled then ansible's previously gathered facts about this system

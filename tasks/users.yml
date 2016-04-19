@@ -5,7 +5,6 @@
     groups: "{{ item.groups }}"
     state: present
   with_items: "{{ common_users }}"
-  become: yes
 
 - name: Add ssh keys
   authorized_key:
@@ -14,7 +13,6 @@
     state: present
     exclusive: yes
   with_items: "{{ common_users }}"
-  become: yes
 
 - name: Enable passwordless sudo for wheel group
   lineinfile:
@@ -24,7 +22,6 @@
     create: yes
     validate: 'visudo -cf %s'
   when: common_passwordless_sudo == True
-  become: yes
 
 - name: Disable passwordless sudo for wheel group
   lineinfile:
@@ -34,4 +31,3 @@
     create: yes
     validate: 'visudo -cf %s'
   when: common_passwordless_sudo == False
-  become: yes
