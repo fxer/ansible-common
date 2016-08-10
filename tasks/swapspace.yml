@@ -7,6 +7,7 @@
 
 - name: Create swapfile
   command: dd if=/dev/zero of={{ common_swapfile_location }} bs=1M count={{ common_swapfile_size }}
+  register: swap_created
   when: swap_status.stat.exists == False
 
 - name: Set swapfile permissions
@@ -15,16 +16,16 @@
     owner: root
     group: root
     mode: 0600
-  when: swap_status.stat.exists == False or (swap_status.stat.exists == true and swap_status.stat.mode != 0600)
+  when: not swap_created|skipped or (swap_status.stat.exists == True and swap_status.stat.mode != 0600)
 
 - name: Format swapfile
   command: mkswap {{ common_swapfile_location }}
-  when: swap_status.stat.exists == False
+  when: not swap_created|skipped
 
 - name: Enable swapfile
   command: swapon {{ common_swapfile_location }}
-  when: swap_status.stat.exists == False
+  when: not swap_created|skipped
 
 - name: Persist swapfile to fstab
   mount: name=none src={{ common_swapfile_location }} fstype=swap opts=defaults passno=0 dump=0 state=present
-  when: swap_status.stat.exists == False
+  when: not swap_created|skipped

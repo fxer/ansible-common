@@ -5,6 +5,8 @@
   with_items:
     - selinux-policy
     - selinux-policy-targeted
+    - libselinux-python
+    - policycoreutils-python
     - audit
   notify:
     - restart auditd

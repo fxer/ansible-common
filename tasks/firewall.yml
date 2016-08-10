@@ -1,4 +1,8 @@
 ---
+- name: Install firewalld
+  package: name="{{ item }}" state=present
+  with_items:
+    - firewalld
 
 - name: Enable firewall
   service: name=firewalld state=started enabled=yes

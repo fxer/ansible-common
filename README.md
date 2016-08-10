@@ -1,4 +1,4 @@
-## Ansible Role: common
+## Ansible Role: Common
 Common setup tasks for all RedHat/CentOS 7 servers
 
 ## Tasks

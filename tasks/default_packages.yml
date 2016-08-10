@@ -1,13 +1,21 @@
 ---
-# Install EPEL and upgrade all existing packages, or installing user specified packages may fail
-- name: Upgrade packages to latest
-  package: name=* state=latest
 
+# Install EPEL and upgrade all existing packages, or installing user specified packages may fail
 - name: Install EPEL repo
-  package: name=epel-release state=latest
+  package:
+    name: epel-release
+    state: latest
+
+- name: Upgrade packages to latest
+  package:
+    name: "*"
+    state: latest
 
 - name: Install default packages
-  package: name="{{ item }}" state=present update_cache=yes
+  package:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
   with_items: "{{ common_default_packages }}"
   register: default_packages
 
