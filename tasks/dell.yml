@@ -1,0 +1,15 @@
+---
+
+- name: Install Dell System Update repo
+  copy:
+    src: 'dell-system-update.repo'
+    dest: '/etc/yum.repos.d'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: Install dsu utility
+  package:
+    name: 'dell-system-update'
+    state: latest
+    update_cache: yes

@@ -1,8 +1,10 @@
 ---
-- name: Add ssh users
+- name: Create system users
   user:
     name: "{{ item.name }}"
-    groups: "{{ item.groups }}"
+    groups: "{{ item.groups | default() }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    comment: "{{ item.comment | default('') }}"
     append: yes
     state: present
   with_items: "{{ common_users }}"

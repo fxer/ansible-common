@@ -2,32 +2,36 @@
 # Very first thing is handle the selinux config, because it must be running
 # to manage selinux settings (if enabled). And enabling it requires an immediate reboot!
 - include: selinux.yml
-  tags: ['common-selinux']
+  tags: ['common:selinux']
 
 # Add swap early so later plays have sufficent memory to execute
 - include: swapspace.yml
   when: common_swapfile_size > 0
-  tags: ['common-swap']
+  tags: ['common:swap']
 
 - include: firewall.yml
   when: common_firewall_enabled
-  tags: ['common-firewall']
+  tags: ['common:firewall']
 
 - include: users.yml
-  tags: ['common-users']
+  tags: ['common:users']
 
 - include: sshd.yml
-  tags: ['common-sshd']
+  tags: ['common:sshd']
 
 - include: default_packages.yml
-  tags: ['common-packages']
+  tags: ['common:packages']
 
 - include: autoupdate.yml
   when: common_autoupdate_enabled
-  tags: ['common-autoupdate']
+  tags: ['common:autoupdate']
 
 - include: shell_customization.yml
-  tags: ['common-shell']
+  tags: ['common:shell']
 
 - include: timezone.yml
-  tags: ['common-timezone']
+  tags: ['common:timezone']
+
+- include: dell.yml
+  when: common_dell_server
+  tags: ['common:dell']

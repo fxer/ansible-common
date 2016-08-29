@@ -15,6 +15,7 @@ Common setup tasks for all RedHat/CentOS 7 servers
 * Enable auto-updates (via yum-cron)
 * Install global shell enhancements (custom aliases, vim configs)
 * Set timezone
+* Install Dell linux repo and [dsu](https://linux.dell.com/repo/hardware/dsu/) utility
 
 ## License
 2-clause BSD
