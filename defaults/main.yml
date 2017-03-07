@@ -1,15 +1,6 @@
 ---
 common_timezone: 'US/Pacific'
 
-#common_users:
-# - name: username
-#   groups: wheel
-#   sshkeys:
-#     - 'ssh-rsa SOME KEY username'
-common_users: []
-
-common_passwordless_sudo: True # Enable passwordless sudo for members of 'wheel' group
-
 # ssh customizations
 # Includes recommended security settings and custom port simpy to evade
 # automated bot traffic on port 22
@@ -17,27 +8,33 @@ common_ssh_port: 21098
 common_ssh_password_authentication: 'no'
 common_ssh_permit_root_login: 'no'
 
-common_selinux_enforcement: 'enforcing'  # enforcing/permissive/disabled
-common_selinux_type: 'targeted'          # targeted/minimum/mls
-
-common_autoupdate_enabled: True
-common_firewall_enabled: True
-common_dell_server: False # Install Dell server management software
+common_selinux_mode: 'enforcing'  # enforcing/permissive/disabled
+common_selinux_type: 'targeted'   # targeted/minimum/mls
 
 # A small VPS can use some swap to avoid processes being killed too easily
-common_swapfile_size: 1024 # Swapfile size in MB, 0 to disable
+common_swapfile_size: 2048 # Swapfile size in MB, 0 to disable
 common_swapfile_location: /swapfile
 
 # Default packages you want installed on every server
-common_default_packages:
+common_base_packages:
   - vim
   - htop
   - iotop
-  - mlocate
   - unzip
-  - bash-completion
+  - wget
+  - mlocate           # for; 'locate' command
+  - bash-completion   # for; tab-completion
   - yum-utils         # for; needs-restarting, repoquery
   - bind-utils        # for; dig, nslookup
+  - rsync             # must be installed on both ends (not default on linode centos)
+
+# Required packages for selinux enforcement and management
+common_selinux_packages:
+  - selinux-policy
+  - selinux-policy-targeted
+  - libselinux-python
+  - policycoreutils-python
+  - audit
 
 common_shell_customizations:
   - path: /etc/profile.d/colorls.sh

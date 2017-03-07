@@ -4,8 +4,6 @@ Common setup tasks for all RedHat/CentOS 7 servers
 ## Tasks
 * Enable SELinux (immediate reboot to activate)
 * Add swap (otherwise a small VPS may be visited by the OOM Killer in later tasks)
-* Enable firewalld
-* Create initial users (ssh keys, sudo access)
 * Harden sshd configuration
   * Disable root login
   * Disable password authentication
@@ -15,7 +13,7 @@ Common setup tasks for all RedHat/CentOS 7 servers
 * Enable auto-updates (via yum-cron)
 * Install global shell enhancements (custom aliases, vim configs)
 * Set timezone
-* Install Dell linux repo and [dsu](https://linux.dell.com/repo/hardware/dsu/) utility
+* Set hostname
 
 ## License
 2-clause BSD

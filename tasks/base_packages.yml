@@ -16,9 +16,9 @@
     name: "{{ item }}"
     state: latest
     update_cache: yes
-  with_items: "{{ common_default_packages }}"
+  with_items: "{{ common_base_packages }}"
   register: default_packages
 
 - name: Update mlocate db
   command: updatedb
-  when: "'mlocate' in common_default_packages and default_packages.changed"
+  when: "'mlocate' in common_base_packages and default_packages.changed"

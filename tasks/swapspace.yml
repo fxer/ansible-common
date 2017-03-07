@@ -2,13 +2,18 @@
 # Create swap immediately with 'register' commands vs 'notify', so later plays
 # don't fail due to insufficent memory
 - name: Verify swapfile status
-  stat: path={{ common_swapfile_location }}
+  stat:
+    path: "{{ common_swapfile_location }}"
+    get_checksum: no
+    get_md5: no
+    mime: no
   register: swap_status
+  changed_when: not swap_status.stat.exists
 
 - name: Create swapfile
   command: dd if=/dev/zero of={{ common_swapfile_location }} bs=1M count={{ common_swapfile_size }}
   register: swap_created
-  when: swap_status.stat.exists == False
+  when: swap_status.changed
 
 - name: Set swapfile permissions
   file:
@@ -16,16 +21,23 @@
     owner: root
     group: root
     mode: 0600
-  when: not swap_created|skipped or (swap_status.stat.exists == True and swap_status.stat.mode != 0600)
+  when: swap_status.stat.exists or swap_created.changed
 
 - name: Format swapfile
   command: mkswap {{ common_swapfile_location }}
-  when: not swap_created|skipped
+  when: swap_created.changed
 
 - name: Enable swapfile
   command: swapon {{ common_swapfile_location }}
-  when: not swap_created|skipped
+  when: swap_created.changed
 
 - name: Persist swapfile to fstab
-  mount: name=none src={{ common_swapfile_location }} fstype=swap opts=defaults passno=0 dump=0 state=present
-  when: not swap_created|skipped
+  mount:
+    name: none
+    src: "{{ common_swapfile_location }}"
+    fstype: swap
+    opts: defaults
+    passno: 0
+    dump: 0
+    state: present
+  when: swap_created.changed

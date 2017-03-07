@@ -1,18 +1,17 @@
 ---
 # Make sure several important selinux packages are installed
 - name: Install SELinux
-  package: name="{{ item }}" state=present
-  with_items:
-    - selinux-policy
-    - selinux-policy-targeted
-    - libselinux-python
-    - policycoreutils-python
-    - audit
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ common_selinux_packages }}"
   notify:
-    - restart auditd
+    - start auditd
 
 - name: Configure SELinux
-  selinux: policy={{ common_selinux_type }} state={{ common_selinux_enforcement }}
+  selinux:
+    policy: "{{ common_selinux_type }}"
+    state: "{{ common_selinux_mode }}"
   register: selinux_result
 
 # Rebooting to be handled via register, not notify, since it needs to happen immediately
@@ -33,6 +32,7 @@
     connect_timeout: 5
     delay: 10
     timeout: 300
+  become: no
   when: selinux_result.changed
 
 # If SELinux was enabled/disabled then ansible's previously gathered facts about this system

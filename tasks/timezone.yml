@@ -3,7 +3,7 @@
   command: readlink /etc/localtime
   register: current_timezone
   changed_when: current_timezone.stdout.find("{{ common_timezone }}") == -1
-  always_run: yes
+  check_mode: no
 
 - name: Set timezone
   command: timedatectl set-timezone {{ common_timezone }}

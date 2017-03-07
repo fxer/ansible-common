@@ -36,18 +36,8 @@
   register: selinux_command
   changed_when: selinux_command.stdout.find("{{ common_ssh_port }}") == -1
   failed_when: False
-  when: common_selinux_enforcement != 'disabled' and port_command.changed
+  when: common_selinux_mode != 'disabled' and port_command.changed
 
 - name: "Configure SELinux for ssh port {{ common_ssh_port }}"
   command: semanage port -a -t ssh_port_t -p tcp {{ common_ssh_port }}
   when: selinux_command.changed
-
-- name: "Configure firewall for ssh port {{ common_ssh_port }}"
-  firewalld: port={{ common_ssh_port }}/tcp permanent=true state=enabled immediate=true
-  when: common_firewall_enabled and port_command.changed
-  register: command_result
-
-# Manage firewalld ssh config via 'port' instead of default 'service'
-- name: Remove default firewall ssh service
-  firewalld: service=ssh permanent=true state=disabled immediate=true
-  when: common_firewall_enabled and port_command.changed
